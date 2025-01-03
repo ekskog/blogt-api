@@ -5,11 +5,16 @@ const path = require('path');
 const fs = require('fs').promises;
 var debug = require('debug')('blogt-api:server');
 const postsDir = path.join(__dirname, 'posts');
-
+const corsProperties = 
+  {
+    origin: 'http://localhost:5173', // Your Vue app's development server
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type']
+  }
 
 // Create an instance of an Express application
 const app = express();
-app.use(cors());
+app.use(cors(corsProperties));
 // Define a route for GET requests to "/"
 app.get('/', (req, res) => {
   res.send('OK'); // Respond with "OK"
@@ -29,6 +34,7 @@ app.get('/:dateString', async (req, res) => {
 
   // Use moment to ensure we are manipulating only the date (start of the day)
   let filePath = path.join(postsDir, year, month, `${day}.md`);
+  debug('File path:', filePath);
 
   try {
     console.log('Reading file:', filePath);
@@ -52,5 +58,5 @@ const PORT = 3001;
 
 // Start the server and listen on the specified port
 app.listen(PORT, () => {
-  console.log(`Server is running on ${PORT}`);
+  debug(`Server is running on ${PORT}`);
 });

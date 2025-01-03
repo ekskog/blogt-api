@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Set the environment variable to run the application in production mode
-ENV DEBUG=*,-express:*
+ENV DEBUG=*
 
 # Expose the port your app runs on (3000 in this case)
 EXPOSE 3001
