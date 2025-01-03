@@ -52,7 +52,7 @@ spec:
               name: blogt-api
           volumeMounts:
             - name: blogposts
-              mountPath: /posts
+              mountPath: /usr/sr/app/posts
       volumes:
         - name: blogposts
           persistentVolumeClaim:
