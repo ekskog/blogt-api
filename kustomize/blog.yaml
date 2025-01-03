@@ -18,7 +18,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: webapps
-  name: blogt=api
+  name: blogt-api
   labels:
     app: blogt-api
 spec:
