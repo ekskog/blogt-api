@@ -15,7 +15,7 @@ const {
 const postsDir = path.join(__dirname, 'posts');
 const corsProperties =
 {
-  origin: 'http://localhost:5173', // Your Vue app's development server
+  origin: '*', // Your Vue app's development server
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
 }
