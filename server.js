@@ -1,13 +1,15 @@
 // Import the Express library
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const fs = require('fs').promises;
 var debug = require('debug')('blogt-api:server');
 const postsDir = path.join(__dirname, 'posts');
 
+
 // Create an instance of an Express application
 const app = express();
-
+app.use(cors());
 // Define a route for GET requests to "/"
 app.get('/', (req, res) => {
   res.send('OK'); // Respond with "OK"
