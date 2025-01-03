@@ -29,7 +29,7 @@ app.get('/:dateString', async (req, res) => {
   let filePath = path.join(postsDir, year, month, `${day}.md`);
 
   try {
-    debug('Reading file:', filePath);
+    console.log('Reading file:', filePath);
     const fileContent = await fs.readFile(filePath, 'utf-8');
 
     // Send the file content as response  
@@ -50,5 +50,5 @@ const PORT = 3001;
 
 // Start the server and listen on the specified port
 app.listen(PORT, () => {
-  debug(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on ${PORT}`);
 });
