@@ -37,7 +37,7 @@ spec:
         fsGroup: 1000
         allowPrivilegeEscalation: false
       containers:
-        - name: blogt=api
+        - name: blogt-api
           image: lucarv/blogt-api:latest
           imagePullPolicy: Always
           resources:
