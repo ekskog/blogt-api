@@ -86,16 +86,14 @@ app.get('/:dateString', async (req, res) => {
   let filePath = path.join(postsDir, year, month, `${day}.md`);
   debug('File path:', filePath);
 
+  const postsArray = [];
+
   try {
     console.log('Reading file:', filePath);
-    const fileContent = await fs.readFile(filePath, 'utf-8');
-
+    const data = await fs.readFile(filePath, 'utf-8');
+    postsArray.push(data);
     // Send the file content as response  
-    res.set('Content-Type', 'text/markdown');
-    res.send(fileContent);
-
-
-
+    res.send(postsArray);
   } catch (err) {
     console.error('Error reading post file:', err);
     res.status(404).send('Post not found');
