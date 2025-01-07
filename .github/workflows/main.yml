@@ -25,7 +25,7 @@ jobs:
         run: export DOCKER_CLI_DEBUG=1   
 
       - name: Debug Secret
-        run: "echo \"Docker Hub secret: ${{ secrets.DOCKER_HUB_PASSWORD }}\""
+        run: "echo \"Docker Hub PWD Secret: ${{ secrets.DOCKER_HUB_PASSWORD }}\""
         
       - name: Login to Docker Hub
         run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u lucarv --password-stdin
