@@ -1,35 +1,22 @@
-// Import the Express library
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const fs = require('fs').promises;
-var debug = require('debug')('blogt-api:server');
+var debug = require('debug')('blogt-api:posts-route');
 
-let filePath = path.join(__dirname, '.');
-const tagIndex = require(`${filePath}/tags_index.json`); // Path to JSON tag index file
-debug(Object.keys(tagIndex).length);
+var express = require('express');
+var router = express.Router();
+
+var path = require('path');
+const fs = require('fs').promises;
+const postsDir = path.join(__dirname, '..', 'posts');
+debug('Posts directory:', postsDir);
 
 const {
   findLatestPost,
   getNext,
   getPrev,
   formatDate
-} = require('./utils/utils');
+} = require('../utils/utils');
 
-const postsDir = path.join(__dirname, 'posts');
-const corsProperties =
-{
-  origin: '*', // Your Vue app's development server
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type']
-}
-
-// Create an instance of an Express application
-const app = express();
-app.use(cors(corsProperties));
-
-// Define a route for GET requests to "/"
-app.get('/', async (req, res) => {
+/* GET home page. */
+router.get('/', async (req, res) => {
   try {
     const { latestPostPath, latestPostDate } = await findLatestPost();
     var dateString = await formatDate(latestPostDate);
@@ -47,7 +34,9 @@ app.get('/', async (req, res) => {
       const year = dateString.slice(0, 4);
       const month = dateString.slice(4, 6);
       const day = dateString.slice(6, 8);
-      let filePath = path.join(__dirname, '.', 'posts', year, month, `${day}.md`);
+      let filePath = path.join(postsDir, year, month, `${day}.md`);
+      debug('File path:', filePath);
+      
 
       try {
         const data = await fs.readFile(filePath, 'utf-8');
@@ -74,25 +63,7 @@ app.get('/', async (req, res) => {
 
 });
 
-app.get('/tags/:tagName', async (req, res) => {
-  var { tagName } = req.params;
-  tagName = decodeURIComponent(tagName); // Decode the tag name to handle multi-word and special characters
-
-  const normalizedTag = tagName.toLowerCase();
-
-  let postFiles = tagIndex[normalizedTag] || [];
-  debug(`${tagName} >> ${postFiles.length}`);
-
-  if (postFiles.length === 0) {
-      return res.send('noPosts', { tagName });
-  } else {
-    res.send(postFiles);
-  }
-});
-
-
-
-app.get('/:dateString', async (req, res) => {
+router.get('/:dateString', async (req, res) => {
   const { dateString } = req.params;
 
   // Ensure dateString is in the format YYYYMMDD
@@ -122,11 +93,4 @@ app.get('/:dateString', async (req, res) => {
   }
 });
 
-
-// Define the port the app will listen on
-const PORT = 3001;
-
-// Start the server and listen on the specified port
-app.listen(PORT, () => {
-  console.log(`Server is running on ${PORT}`);
-});
+module.exports = router;
