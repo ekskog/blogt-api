@@ -1,9 +1,9 @@
-var debug = require('debug')('blogt-api:posts-route');
+const debug = require('debug')('blogt-api:posts-route');
 
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-var path = require('path');
+const path = require('path');
 const fs = require('fs').promises;
 const postsDir = path.join(__dirname, '..', 'posts');
 debug('Posts directory:', postsDir);
