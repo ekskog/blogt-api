@@ -17,7 +17,7 @@ COPY . .
 ENV DEBUG=*,-express:*
 
 # Expose the port your app runs on (3000 in this case)
-EXPOSE 3001
+EXPOSE 3000
 
 # Define the command to run your application
 CMD ["npm", "start"]
