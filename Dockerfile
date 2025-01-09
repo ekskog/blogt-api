@@ -20,4 +20,4 @@ ENV DEBUG=*
 EXPOSE 3001
 
 # Define the command to run your application
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
