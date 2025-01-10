@@ -1,4 +1,8 @@
+const debug = require('debug')('blogt-api:utils');
+
+const { get } = require('http');
 const path = require('path');
+const { ByteLengthQueuingStrategy } = require('stream/web');
 const fs = require('fs').promises;
 const postsDir = path.join(__dirname, '..', 'posts');
 
@@ -121,10 +125,67 @@ const formatDate = async (dateString) => {
     return formatted;
 }
 
+const formatDates = async (inputDate) => {
+    // Ensure input is in DDMMYYYY format
+    const day = inputDate.substring(0, 2);
+    const month = inputDate.substring(2, 4);
+    const year = inputDate.substring(4, 8);
+  
+    // Create the formatted string 'YYYY/MM/DD.md'
+    const latestPostPath = `${year}/${month}/${day}.md`;
+  
+    // Create the full ISO date string "YYYY-MM-DDT00:00:00.000Z"
+    const latestPostDate = new Date(`${year}-${month}-${day}T00:00:00.000Z`).toISOString();
+  
+    return { latestPostDate, latestPostPath }
+  }
+
+  const getFivePosts = async (dateString) => {
+  
+    try {
+  
+      const postsArray = [];
+      const postsPerPage = 5; // Number of posts per page
+  
+      // Loop to get the posts for the requested page
+      for (let i = 0; i < postsPerPage; i++) {
+        const year = dateString.slice(0, 4);
+        const month = dateString.slice(4, 6);
+        const day = dateString.slice(6, 8);
+        let filePath = path.join(postsDir, year, month, `${day}.md`);
+        debug('File path:', filePath);
+        
+  
+        try {
+          const data = await fs.readFile(filePath, 'utf-8');
+          postsArray.push(data);
+          dateString = await getPrev(dateString)
+          if (!dateString) {
+            break;
+          } else {
+            debug("Posts to display" + postsArray.length)
+          }
+        } catch (err) {
+            console.log(err)
+          console.error(`No post found for ${year}-${month}-${day}`);
+          dateString = await getPrev(dateString)
+          // Continue to next date if file does not exist
+        }
+      }
+      return postsArray;   
+  
+    }
+    catch (error) {
+      console.error('Error fetching posts:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 
 module.exports = {
     findLatestPost,
     getNext,
     getPrev,
-    formatDate
+    getFivePosts,
+    formatDate,
+    formatDates
 };
