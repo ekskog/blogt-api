@@ -145,7 +145,7 @@ const formatDates = async (inputDate) => {
     try {
   
       const postsArray = [];
-      const postsPerPage = 5; // Number of posts per page
+      const postsPerPage = 10; // Number of posts per page
   
       // Loop to get the posts for the requested page
       for (let i = 0; i < postsPerPage; i++) {
