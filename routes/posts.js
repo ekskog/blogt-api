@@ -14,8 +14,72 @@ const {
   formatDate, formatDates
 } = require('../utils/utils');
 
+router.get('/archives', async (req, res) => {
+  let filePath = path.join(postsDir, `archive.json`);
+  debug('File path:', filePath);
 
-/* GET home page. */
+  try {
+    const data = await fs.readFile(filePath, 'utf-8');
+    const jsonData = JSON.parse(data);
+    res.json(jsonData);
+  } catch (err) {
+    console.error('Error reading archives file:', err);
+    res.status(500).send('Failed to fetch archives.');
+  }
+});
+
+router.get('/buildarchives', async (req, res) => {
+  try {
+    // Recursively build the archive structure
+    const buildArchives = async (dir) => {
+      const items = await fs.readdir(dir, { withFileTypes: true });
+      const structure = {};
+
+      for (const item of items) {
+        const itemPath = path.join(dir, item.name);
+
+        if (item.isDirectory()) {
+          // Recursively process subdirectories (years, months)
+          structure[item.name] = await buildArchives(itemPath);
+        } else if (item.isFile() && item.name.endsWith('.md')) {
+          // Extract day from filename
+          const day = path.basename(item.name, '.md');
+          if (!structure.files) structure.files = [];
+          structure.files.push(day);
+        }
+      }
+
+      // If there are only files, return just an array of days
+      return structure.files ? structure.files : structure;
+    };
+
+    // Build the archive starting from the posts directory
+    const archives = await buildArchives(postsDir);
+
+    // Convert the result to the desired structure
+    const formatArchives = (rawStructure) => {
+      const formatted = {};
+      for (const year in rawStructure) {
+        if (typeof rawStructure[year] === 'object') {
+          formatted[year] = {};
+          for (const month in rawStructure[year]) {
+            if (Array.isArray(rawStructure[year][month])) {
+              formatted[year][month] = rawStructure[year][month];
+            }
+          }
+        }
+      }
+      return formatted;
+    };
+
+    const formattedArchives = formatArchives(archives);
+    res.json(formattedArchives);
+  } catch (err) {
+    console.error('Error building archives:', err);
+    res.status(500).send('Failed to fetch archives.');
+  }
+});
+
 router.get('/', async (req, res) => {
   const { latestPostPath, latestPostDate } = await findLatestPost();
   var dateString = await formatDate(latestPostDate);
