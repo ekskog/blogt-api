@@ -117,7 +117,7 @@ async function getPrev(dateString) {
       return `${previousDay}${previousMonth}${previousYear}`;
     } catch (error) {
       // Log the missing entry
-      debug(`No entry found for ${prevYear}-${prevMonth}-${prevDay}. Checking previous date...`);
+      debug(`No entry found for ${previousYear}-${previousMonth}-${previousDay}. Checking previous date...`);
       // Continue to previous date
     }
   }
