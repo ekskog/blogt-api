@@ -112,14 +112,14 @@ router.get('/from/:startDate', async (req, res) => {
 router.get('/:dateString', async (req, res) => {
   const { dateString } = req.params;
 
-  // Ensure dateString is in the format YYYYMMDD
+  // Ensure dateString is in the format DDMMYYYY
   if (!/^\d{8}$/.test(dateString)) {
-    return res.status(400).send('Invalid date format. Use YYYYMMDD.');
+    return res.status(400).send('Invalid date format. Use DDMMYYYY.');
   }
 
-  const year = dateString.slice(0, 4);
-  const month = dateString.slice(4, 6);
-  const day = dateString.slice(6, 8);
+  const day = dateString.slice(0, 2);
+  const month = dateString.slice(2, 4);
+  const year = dateString.slice(4, 8);
 
   // Use moment to ensure we are manipulating only the date (start of the day)
   let filePath = path.join(postsDir, year, month, `${day}.md`);

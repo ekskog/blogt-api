@@ -64,9 +64,9 @@ const findLatestPost = async () => {
 
 async function getNext(dateString) {
 
-    const year = parseInt(dateString.slice(0, 4));
-    const month = parseInt(dateString.slice(4, 6)) - 1; // JS months are 0-indexed
-    const day = parseInt(dateString.slice(6));
+    const day = parseInt(dateString.slice(0, 2));
+    const month = parseInt(dateString.slice(2, 4)) - 1; // JS months are 0-indexed
+    const year = parseInt(dateString.slice(6));
     let date = new Date(year, month, day);
 
     let iterations = 0;
@@ -90,9 +90,9 @@ async function getNext(dateString) {
 }
 
 async function getPrev(dateString) {
-    const year = parseInt(dateString.slice(0, 4));
-    const month = parseInt(dateString.slice(4, 6)) - 1; // JS months are 0-indexed
-    const day = parseInt(dateString.slice(6));
+    const day = parseInt(dateString.slice(0, 2));
+    const month = parseInt(dateString.slice(2, 4)) - 1; // JS months are 0-indexed
+    const year = parseInt(dateString.slice(6));
     let date = new Date(year, month, day);
 
     let iterations = 0;
