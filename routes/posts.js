@@ -105,7 +105,7 @@ router.get('/from/:startDate', async (req, res) => {
     return res.status(404).json({ error: 'No posts found' });
   } else
   {
-    let postsArray = await getFivePosts(dateString);
+    let postsArray = await getPostsArray(dateString);
     res.send(postsArray);  }
 });
 
