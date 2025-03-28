@@ -17,7 +17,7 @@ router.get("/:tagName", async (req, res) => {
   const normalizedTag = tagName.toLowerCase();
 
   let postFiles = tagIndex[normalizedTag] || [];
-  debug(`${tagName} >> ${postFiles.length}`);
+  debug(`found ${postFiles.length} occurrences of ${tagName}`);
 
   res.send(postFiles);
 });
