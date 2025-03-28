@@ -6,6 +6,7 @@ var debug = require("debug")("blot-too:tags-route");
 
 let filePath = path.join(__dirname, "..", "posts");
 const tagIndex = require(`${filePath}/tags_index.json`); // Path to JSON tag index file
+console.log(filePath);
 debug(Object.keys(tagIndex).length);
 
 /* GET users listing. */
