@@ -3,12 +3,11 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const fs = require('fs').promises;
 
 const cors = require('cors');
 const corsProperties =
 {
-  origin: '*', // Your FrontEdn app's development server
+  origin: '*', // Your FrontEnd app's development server
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
 }

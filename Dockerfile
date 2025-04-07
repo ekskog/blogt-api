@@ -11,7 +11,11 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the rest of the application code to the working directory
-COPY . .
+# Copy app source code
+COPY app.js .
+COPY routes ./routes
+COPY utils ./utils
+COPY bin ./bin
 
 # Set the environment variable to run the application in production mode
 ENV DEBUG=blogt-api*
