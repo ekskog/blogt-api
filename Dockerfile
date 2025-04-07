@@ -1,5 +1,5 @@
 # Use the official Node.js image as the base image
-FROM node:18
+FROM node:lts-apline
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Set the environment variable to run the application in production mode
-ENV DEBUG=*,-express:*
+ENV DEBUG=blogt-api*
 
 # Expose the port your app runs on (3000 in this case)
 EXPOSE 3000

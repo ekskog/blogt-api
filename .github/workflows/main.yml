@@ -1,4 +1,4 @@
-name: Build and Push Multi-Platform Docker Image
+name: Build and Deploy Docker Image
 
 on:
   push:
@@ -6,28 +6,36 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          path: ./
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+      - name: Define Environment Variables
+        run: echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        run: docker login ghcr.io -u $GITHUB_ACTOR --password ${{ secrets.EK_GITHUB_PAT }}
 
-      - name: Enable Docker CLI Debug
-        run: export DOCKER_CLI_DEBUG=1   
-        
-      - name: Login to Docker Hub
-        run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u lucarv --password-stdin
-
-      - name: Build and push Docker image
+      - name: Build and Push Docker Image
         run: |
-          IMAGE_TAG=lucarv/blogtv:$(date +%Y%m%d%H%M%S)
-          docker buildx build --platform linux/amd64 -t $IMAGE_TAG -t lucarv/blogt-api:latest --push .
+          IMAGE_NAME=ghcr.io/ekskog/blogt-api
+          IMAGE_TAG=$IMAGE_NAME:${{ env.TIMESTAMP }}
+          echo "Resolved IMAGE_TAG: $IMAGE_TAG"
+          docker buildx build --platform linux/amd64 -t $IMAGE_TAG --push .
+      
+      - name: Set Up KUBECONFIG
+        run: |
+          echo "${{ secrets.KUBECONFIG_FILE_CONTENT }}" > kubeconfig.yaml
+          export KUBECONFIG=$PWD/kubeconfig.yaml
+          echo "KUBECONFIG set to $KUBECONFIG"
+                    
+      - name: Deploy to Kubernetes
+        run: |
+          IMAGE_NAME=ghcr.io/ekskog/blogt-api
+          IMAGE_TAG=$IMAGE_NAME:${{ env.TIMESTAMP }}
+          echo "Resolved IMAGE_TAG: $IMAGE_TAG"
+          kubectl set image deployment/blogt-api blogt-api=$IMAGE_TAG --namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml
+          kubectl rollout restart deployment/blogt-api --namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml
