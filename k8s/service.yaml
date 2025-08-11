@@ -9,7 +9,7 @@ spec:
     app: blogt-api
   ports:
     - protocol: TCP
-      port: 3001
+      port: 3000
       name: http
   type: LoadBalancer
   externalTrafficPolicy: Local 
