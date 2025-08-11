@@ -1,0 +1,75 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: blogt
+  name: blogt-api
+spec:
+  selector:
+    app: blogt-api
+  ports:
+    - protocol: TCP
+      port: 3001
+      name: http
+  type: LoadBalancer
+  externalTrafficPolicy: Local 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: blogt
+  name: blogt-api
+  labels:
+    app: blogt-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blogt-api
+  template:
+    metadata:
+      labels:
+        app: blogt-api
+    spec:
+      containers:
+        - name: blogt-api
+          image: ghcr.io/ekskog/blogt-api:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi" 
+              cpu: "500m" 
+          ports:
+            - containerPort: 3000
+              name: blogt-api
+          volumeMounts:
+            - name: blogposts
+              mountPath: /usr/src/app/posts
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+      securityContext:
+        runAsUser: 1000 
+        runAsGroup: 1000
+        fsGroup: 1000
+      volumes:
+        - name: blogposts
+          persistentVolumeClaim:
+            claimName: blogt-nfspvc
+      terminationGracePeriodSeconds: 30
