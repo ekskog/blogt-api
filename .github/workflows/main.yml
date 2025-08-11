@@ -16,9 +16,11 @@ jobs:
 
       - name: Set Environment Variables
         run: |
+          IMAGE_NAME=ghcr.io/ekskog/blogt-api
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          IMAGE_TAG=$IMAGE_NAME:$SHORT_SHA
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
           echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
-          IMAGE_TAG=${{ env.IMAGE_NAME }}:$SHORT_SHA
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV        
 
       - name: Login to GitHub Container Registry
@@ -63,6 +65,6 @@ jobs:
         if: failure()
         run: |
           echo "Deployment failed. Gathering debug information..."
-          kubectl describe deployment avif-converter --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml
-          kubectl describe pods -l app=avif-converter --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml
-          kubectl logs -l app=avif-converter --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml --tail=50namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml
+          kubectl describe deployment blogt-api --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml
+          kubectl describe pods -l app=blogt-api --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml
+          kubectl logs -l app=blogt-api --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml --tail=50
