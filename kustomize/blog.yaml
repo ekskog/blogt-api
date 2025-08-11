@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: webapps
+  namespace: blogt
   name: blogt-api
 spec:
   selector:
@@ -17,7 +17,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: webapps
+  namespace: blogt
   name: blogt-api
   labels:
     app: blogt-api
@@ -31,14 +31,9 @@ spec:
       labels:
         app: blogt-api
     spec:
-      securityContext:
-        runAsUser: 1000 
-        runAsGroup: 1000
-        fsGroup: 1000
-        allowPrivilegeEscalation: false
       containers:
         - name: blogt-api
-          image: lucarv/blogt-api:latest
+          image: ghcr.io/ekskog/blogt-api:latest
           imagePullPolicy: Always
           resources:
             requests:
@@ -53,22 +48,28 @@ spec:
           volumeMounts:
             - name: blogposts
               mountPath: /usr/src/app/posts
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+      securityContext:
+        runAsUser: 1000 
+        runAsGroup: 1000
+        fsGroup: 1000
       volumes:
         - name: blogposts
           persistentVolumeClaim:
-            claimName: blog-nfspvc
+            claimName: blogt-nfspvc
       terminationGracePeriodSeconds: 30
-      livenessProbe:
-        httpGet:
-          path: /healthz
-          port: 80
-        initialDelaySeconds: 30
-        periodSeconds: 60
-        failureThreshold: 3
-      readinessProbe:
-        httpGet:
-          path: /readiness
-          port: 80
-        initialDelaySeconds: 10
-        periodSeconds: 30
-        failureThreshold: 3

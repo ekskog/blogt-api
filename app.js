@@ -29,6 +29,11 @@ app.use('/', indexRouter);
 app.use('/posts', postsRouter);
 app.use('/tags', tagsRouter);
 
+// Add a health endpoint for Kubernetes probes
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
