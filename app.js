@@ -31,6 +31,7 @@ app.use('/tags', tagsRouter);
 
 // Add a health endpoint for Kubernetes probes
 app.get('/health', (req, res) => {
+  console.log('Health check received');
   res.status(200).send('OK');
 });
 
