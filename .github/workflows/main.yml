@@ -55,12 +55,12 @@ jobs:
           kubectl apply -f k8s/service.yaml --kubeconfig=$PWD/kubeconfig.yaml
           
           # Wait for rollout
-          kubectl rollout status deployment/avif-converter --namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml --timeout=600s
+          kubectl rollout status deployment/avif-converter --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml --timeout=600s
 
       - name: Debug on Failure
         if: failure()
         run: |
           echo "Deployment failed. Gathering debug information..."
-          kubectl describe deployment avif-converter --namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml
-          kubectl describe pods -l app=avif-converter --namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml
-          kubectl logs -l app=avif-converter --namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml --tail=50namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml
+          kubectl describe deployment avif-converter --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml
+          kubectl describe pods -l app=avif-converter --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml
+          kubectl logs -l app=avif-converter --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml --tail=50namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml
