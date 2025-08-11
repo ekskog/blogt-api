@@ -2,7 +2,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: blogt-api-hpa
-  namespace: webapps
+  namespace: blogt
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

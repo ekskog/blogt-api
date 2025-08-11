@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: blogt
+  name: blogt-api
+spec:
+  selector:
+    app: blogt-api
+  ports:
+    - protocol: TCP
+      port: 3001
+      name: http
+  type: LoadBalancer
+  externalTrafficPolicy: Local 

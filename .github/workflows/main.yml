@@ -26,7 +26,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          IMAGE_NAME=ghcr.io/ekskog/avif-converter
+          IMAGE_NAME=ghcr.io/ekskog/blogt-api
           IMAGE_TAG=$IMAGE_NAME:$SHORT_SHA
           LATEST_TAG=$IMAGE_NAME:latest
           echo "Resolved IMAGE_TAG: $IMAGE_TAG"
@@ -49,13 +49,15 @@ jobs:
           echo "Deploying image: $IMAGE_TAG"
           
           # Update the deployment manifest with the correct image tag and apply it
-          sed "s|ghcr.io/ekskog/avif-converter:latest|$IMAGE_TAG|g" k8s/deployment.yaml | kubectl apply -f - --kubeconfig=$PWD/kubeconfig.yaml
+          sed "s|ghcr.io/ekskog/blogt-api:latest|$IMAGE_TAG|g" k8s/deployment.yaml | kubectl apply -f - --kubeconfig=$PWD/kubeconfig.yaml
           
           # Apply other manifests
           kubectl apply -f k8s/service.yaml --kubeconfig=$PWD/kubeconfig.yaml
+          kubectl apply -f k8s/auto-scaler.yaml --kubeconfig=$PWD/kubeconfig.yaml
+
           
           # Wait for rollout
-          kubectl rollout status deployment/avif-converter --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml --timeout=600s
+          kubectl rollout status deployment/blogt-api --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml --timeout=600s
 
       - name: Debug on Failure
         if: failure()
