@@ -83,16 +83,13 @@ router.get('/buildarchives', async (req, res) => {
 
 router.get('/', async (req, res) => {
   const { latestPostPath, latestPostDate } = await findLatestPost();
-  var dateString = await formatDate(latestPostDate);
-  debug(`[MAIN] Latest post date: ${latestPostDate}`)
-
-  if (!latestPostPath) {
+  if (!latestPostPath || !latestPostDate) {
     return res.status(404).json({ error: 'No posts found' });
-  } else
-  {
-    let postsArray = await getPostsArray(dateString);
-    res.send(postsArray);
   }
+  var dateString = await formatDate(latestPostDate);
+  debug(`[MAIN] Latest post date: ${latestPostDate}`);
+  let postsArray = await getPostsArray(dateString);
+  res.send(postsArray);
 });
 
 router.get('/from/:startDate', async (req, res) => {
