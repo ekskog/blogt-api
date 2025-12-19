@@ -12,7 +12,8 @@ debug('Posts directory:', postsDir);
 const {
   findLatestPost,
   getPostsArray,
-  formatDate, formatDates
+  formatDate, formatDates,
+  updateTagsIndex
 } = require('../utils/utils');
 
 router.get('/archives', async (req, res) => {
@@ -78,6 +79,43 @@ router.get('/buildarchives', async (req, res) => {
   } catch (err) {
     console.error('Error building archives:', err);
     res.status(500).send('Failed to fetch archives.');
+  }
+});
+
+router.post('/', async (req, res) => {
+  try {
+    const { date, title, tags = [], content = "" } = req.body;
+
+    if (!date || !/^\d{8}$/.test(date)) {
+      return res.status(400).json({ error: "date must be in DDMMYYYY format" });
+    }
+    if (!title) {
+      return res.status(400).json({ error: "title is required" });
+    }
+    if (!Array.isArray(tags) || tags.length === 0) {
+      return res.status(400).json({ error: "tags must be a non-empty array" });
+    }
+
+    const day = date.slice(0, 2);
+    const month = date.slice(2, 4);
+    const year = date.slice(4, 8);
+
+    const dirPath = path.join(postsDir, year, month);
+    await fs.mkdir(dirPath, { recursive: true });
+
+    const tagsLine = `Tags: ${tags.join(", ")}`;
+    const titleLine = `Title: ${title}`;
+    const body = [tagsLine, titleLine, content].join("\n");
+
+    const filePath = path.join(dirPath, `${day}.md`);
+    await fs.writeFile(filePath, body, "utf-8");
+
+    await updateTagsIndex();
+
+    res.status(201).json({ message: "Post created", path: `${year}/${month}/${day}.md` });
+  } catch (error) {
+    console.error("Error creating post:", error);
+    res.status(500).json({ error: "Failed to create post" });
   }
 });
 

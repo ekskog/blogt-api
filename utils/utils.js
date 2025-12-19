@@ -2,7 +2,6 @@ const debug = require("debug")("blogt-api:utils");
 
 const { get } = require("http");
 const path = require("path");
-const { ByteLengthQueuingStrategy } = require("stream/web");
 const fs = require("fs").promises;
 const postsDir = path.join(__dirname, "..", "posts");
 
@@ -187,6 +186,61 @@ const getPostsArray = async (dateString) => {
   }
 };
 
+async function updateTagsIndex() {
+  const index = {};
+
+  const years = await fs.readdir(postsDir);
+  for (const year of years) {
+    const yearPath = path.join(postsDir, year);
+    if (!(await fs.stat(yearPath)).isDirectory()) {
+      continue;
+    }
+
+    const months = await fs.readdir(yearPath);
+    for (const month of months) {
+      const monthPath = path.join(yearPath, month);
+      if (!(await fs.stat(monthPath)).isDirectory()) {
+        continue;
+      }
+
+      const days = await fs.readdir(monthPath);
+      for (const dayFile of days) {
+        if (!dayFile.endsWith(".md")) {
+          continue;
+        }
+
+        const day = dayFile.slice(0, 2);
+        const date = `${day}${month}${year}`; // DDMMYYYY
+        const filePath = path.join(monthPath, dayFile);
+        const fileContents = await fs.readFile(filePath, "utf-8");
+        const [rawTags = "", rawTitle = ""] = fileContents.split("\n");
+
+        const tags = rawTags
+          .replace(/^Tags:\s*/i, "")
+          .split(",")
+          .map((tag) => tag.trim().toLowerCase())
+          .filter(Boolean);
+        const title = rawTitle.replace(/^Title:\s*/i, "").trim();
+
+        for (const tag of tags) {
+          if (!index[tag]) {
+            index[tag] = [];
+          }
+          index[tag].push({ date, title });
+        }
+      }
+    }
+  }
+
+  await fs.writeFile(
+    path.join(postsDir, "tags_index.json"),
+    JSON.stringify(index, null, 2),
+    "utf-8"
+  );
+
+  return index;
+}
+
 module.exports = {
   findLatestPost,
   getNext,
@@ -194,4 +248,5 @@ module.exports = {
   getPostsArray,
   formatDate,
   formatDates,
+  updateTagsIndex,
 };
