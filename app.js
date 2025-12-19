@@ -16,6 +16,7 @@ var indexRouter = require('./routes/index');
 var postsRouter = require('./routes/posts');
 var tagsRouter = require('./routes/tags');
 var rssRouter = require('./routes/rss');
+var mediaRouter = require('./routes/media');
 
 var app = express();
 app.use(cors(corsProperties));
@@ -30,6 +31,7 @@ app.use('/', indexRouter);
 app.use('/posts', postsRouter);
 app.use('/tags', tagsRouter);
 app.use('/rss.xml', rssRouter);
+app.use('/media', mediaRouter);
 
 // Add a health endpoint for Kubernetes probes
 app.get('/health', (req, res) => {
