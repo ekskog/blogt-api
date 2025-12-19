@@ -21,8 +21,12 @@ var mediaRouter = require('./routes/media');
 var app = express();
 app.use(cors(corsProperties));
 
-app.use(logger('dev'));
-app.use(express.json());
+// Logging
+// Use logger but skip health checks
+app.use(logger('dev', {
+  skip: (req, res) => req.path === '/health'
+}));app.use(express.json());
+
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
