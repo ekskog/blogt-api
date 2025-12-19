@@ -1,9 +1,14 @@
 const debug = require("debug")("blogt-api:utils");
-
 const { get } = require("http");
 const path = require("path");
 const fs = require("fs").promises;
 const postsDir = path.join(__dirname, "..", "posts");
+
+
+const fetchBuckets = async () => {
+  return buckets;
+};
+
 
 const findLatestPost = async () => {
   let latestPostDate = null;

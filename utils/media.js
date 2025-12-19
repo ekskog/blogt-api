@@ -16,6 +16,19 @@ const minioParams = {
 const minioClient = new Minio.Client(minioParams);
 
 console.log(minioParams);
+
+const fetchBuckets = async () => {
+  try {
+    let bucketsList = await minioClient.listBuckets();
+    buckets = bucketsList.map((bucket) => bucket.name);
+    debug("Buckets:", buckets);
+    return buckets;
+  } catch (err) {
+    console.error("Error fetching buckets:", err);
+    throw new Error("Could not buckets");
+  }
+};
+
 async function uploadImageBuffer(fileBuffer, bucketName, objectName) {
   try {
     const resizedImageBuffer = await sharp(fileBuffer)
@@ -38,6 +51,7 @@ async function uploadImageBuffer(fileBuffer, bucketName, objectName) {
 
 module.exports = {
   uploadImageBuffer,
+  fetchBuckets,
 };
 
 
