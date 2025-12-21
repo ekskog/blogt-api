@@ -1,0 +1,39 @@
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width,initial-scale=1")
+    title Blogt API Overview
+    style.
+      body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 2rem; }
+      h1 { font-size: 1.6rem; }
+      pre { background:#f6f8fa; padding:1rem; border-radius:6px; overflow:auto }
+  body
+    h1 Blogt API – Current Endpoints Overview
+    p This is a simplified reference of the API endpoints implemented by the server.
+    h2 Base URL
+    ul
+      li strong Internal (Kubernetes):  http://blogt-api:3000
+      li strong External (LoadBalancer):  http://&lt;external-ip&gt;:3000
+    h2 Health
+    h3 GET /health
+    p Description: Liveness probe used by Kubernetes and for manual health checks.
+    p Response: 200 OK with body "OK"
+    h2 Index
+    h3 GET /
+    p Description: Root route renders this overview.
+    h2 Posts
+    h3 GET /posts
+    p Returns an array of posts starting from the latest.
+    h3 GET /posts/:dateString
+    p Returns raw markdown for a post. Date must be in DDMMYYYY (e.g. 05012025).
+    h3 POST /posts
+    p Creates a new post markdown file. Required fields: date (DDMMYYYY), title, tags (array).
+    h2 Tags
+    h3 GET /tags/:tagName
+    p Returns posts associated with the given tag from posts/tags_index.json.
+    h2 RSS
+    h3 GET /rss.xml
+    p Returns an RSS 2.0 feed built from the latest posts.
+    hr
+    p Notes: This is a simplified view of the server's API. See the repository docs for more details.

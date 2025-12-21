@@ -21,6 +21,10 @@ var mediaRouter = require('./routes/media');
 var app = express();
 app.use(cors(corsProperties));
 
+// View engine setup (use Pug for simple templated pages)
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
 // Logging
 // Use logger but skip health checks
 app.use(logger('dev', {

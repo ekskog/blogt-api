@@ -4,11 +4,9 @@ const path = require("path");
 const fs = require("fs").promises;
 const postsDir = path.join(__dirname, "..", "posts");
 
-
 const fetchBuckets = async () => {
   return buckets;
 };
-
 
 const findLatestPost = async () => {
   let latestPostDate = null;
@@ -90,10 +88,8 @@ async function getNext(dateString) {
 
     try {
       await fs.access(filePath);
-      return `${nextYear}${nextMonth}${nextDay}`;
+      return `${nextDay}${nextMonth}${nextYear}`;
     } catch (error) {
-      // Log the missing entry
-      debug(`No entry found for ${nextYear}-${nextMonth}-${nextDay}. Checking next date...`);
       // Continue to next date
     }
   }
@@ -121,7 +117,9 @@ async function getPrev(dateString) {
       return `${previousDay}${previousMonth}${previousYear}`;
     } catch (error) {
       // Log the missing entry
-      debug(`No entry found for ${previousYear}-${previousMonth}-${previousDay}. Checking previous date...`);
+      debug(
+        `No entry found for ${previousYear}-${previousMonth}-${previousDay}. Checking previous date...`
+      );
       // Continue to previous date
     }
   }
@@ -166,7 +164,7 @@ const getPostsArray = async (dateString) => {
       const month = dateString.slice(2, 4);
       const year = dateString.slice(4, 8);
       let filePath = path.join(postsDir, year, month, `${day}.md`);
-      console.log("File path:", filePath);
+      debug("File path:", filePath);
 
       try {
         const data = await fs.readFile(filePath, "utf-8");
@@ -178,7 +176,7 @@ const getPostsArray = async (dateString) => {
           debug("Posts to display" + postsArray.length);
         }
       } catch (err) {
-        console.log(err);
+        debug(err);
         console.error(`No post found for ${year}-${month}-${day}`);
         dateString = await getPrev(dateString);
         // Continue to next date if file does not exist
@@ -218,14 +216,11 @@ async function updateTagsIndex() {
         const date = `${day}${month}${year}`; // DDMMYYYY
         const filePath = path.join(monthPath, dayFile);
         const fileContents = await fs.readFile(filePath, "utf-8");
-        const [rawTags = "", rawTitle = ""] = fileContents.split("\n");
-
-        const tags = rawTags
-          .replace(/^Tags:\s*/i, "")
-          .split(",")
-          .map((tag) => tag.trim().toLowerCase())
+        const parsed = await parseBlogEntry(fileContents);
+        const tags = (parsed.tags || [])
+          .map((t) => t.toLowerCase())
           .filter(Boolean);
-        const title = rawTitle.replace(/^Title:\s*/i, "").trim();
+        const title = (parsed.title || "").trim();
 
         for (const tag of tags) {
           if (!index[tag]) {
@@ -246,6 +241,69 @@ async function updateTagsIndex() {
   return index;
 }
 
+async function parseBlogEntry(blob) {
+  // Split into lines and examine the top section for metadata lines.
+  const lines = blob.split("\n");
+
+  let title = "";
+  let tags = [];
+  let date = "";
+
+  // Metadata appears at the top of the entry. Scan until we hit an empty line
+  // or until we've consumed the first non-metadata line.
+  let metadataEndIndex = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line === "") {
+      metadataEndIndex = i + 1; // content starts after blank line
+      break;
+    }
+
+    const titleMatch = line.match(/^Title:\s*(.*)/i);
+    if (titleMatch) {
+      title = titleMatch[1].trim();
+      metadataEndIndex = i + 1;
+      continue;
+    }
+
+    const tagsMatch = line.match(/^Tags:\s*(.*)/i);
+    if (tagsMatch) {
+      tags = tagsMatch[1]
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      metadataEndIndex = i + 1;
+      continue;
+    }
+
+    const dateMatch = line.match(/^Date:\s*(.*)/i);
+    if (dateMatch) {
+      date = dateMatch[1].trim();
+      metadataEndIndex = i + 1;
+      continue;
+    }
+
+    // If the line doesn't match any metadata pattern, assume metadata block ended
+    // and treat the rest as content.
+    metadataEndIndex = i;
+    break;
+  }
+
+  // If we scanned all lines without finding a blank line or content, set end to lines.length
+  if (metadataEndIndex === 0) metadataEndIndex = Math.min(lines.length, 3);
+
+  const content = lines.slice(metadataEndIndex).join("\n").trim();
+
+  /*
+  debug("Extracted title:", title);
+  debug("Extracted tags:", tags);
+  debug("Extracted date:", date);
+  debug("Content length:", content.length);
+  */
+
+  return { title, tags, date, content };
+}
+
 module.exports = {
   findLatestPost,
   getNext,
@@ -254,4 +312,5 @@ module.exports = {
   formatDate,
   formatDates,
   updateTagsIndex,
+  parseBlogEntry,
 };
