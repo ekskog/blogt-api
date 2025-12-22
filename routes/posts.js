@@ -119,20 +119,10 @@ router.get("/buildarchives", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const { date, title, tags = [], content = "" } = req.body;
-    debug("Create post data:", { date, title, tags, content });
-
-    if (!date) {
-      return res.status(400).json({ error: "date is required" });
-    }
+console.time("Creating new post");
+    
 
     let { year, month, day } = ddmmyyyyToParts(date);
-
-    if (!title) {
-      return res.status(400).json({ error: "title is required" });
-    }
-    if (!Array.isArray(tags) || tags.length === 0) {
-      return res.status(400).json({ error: "tags must be a non-empty array" });
-    }
 
     const dirPath = path.join(postsDir, year, month);
     await fs.mkdir(dirPath, { recursive: true });
@@ -142,12 +132,12 @@ router.post("/", async (req, res) => {
     const titleLine = `Title: ${title}`;
     const newEntry = [dateLine, tagsLine, titleLine, content].join("\n");
 
-    debug(newEntry);
-
     const filePath = path.join(dirPath, `${day}.md`);
     await fs.writeFile(filePath, newEntry, "utf-8");
-
-    await updateTagsIndex();
+    console.timeEnd("Creating new post");
+    console.time("Updating tags index");
+    updateTagsIndex();
+    console.timeEnd("Updating tags index");
 
     res
       .status(201)
@@ -163,25 +153,21 @@ router.get("/details/:date", async (req, res) => {
   const { date } = req.params;
   debug("Details request for date:", date);
 
-  if (!isYMD(date)) {
-    return res.status(400).json({ error: "date must be in YYYY-MM-DD format" });
-  }
-
   const { year, month, day } = ymdToParts(date);
   const filePath = path.join(postsDir, year, month, `${day}.md`);
-
   debug("File path:", filePath);
 
   try {
+    console.time("Reading post file for details");
     const raw = await fs.readFile(filePath, "utf-8");
+        console.timeEnd("Reading post file for details");
+    console.time("Parsing post file for details");
     const parsed = await parseBlogEntry(raw);
+        console.timeEnd("Parsing post file for details");
 
-    debug(parsed);
-
-    const ddmmyyyy = `${day}${month}${year}`;
     const [prevDDMMYYYY, nextDDMMYYYY] = await Promise.all([
-      getPrev(ddmmyyyy),
-      getNext(ddmmyyyy),
+      getPrev(date),
+      getNext(date),
     ]);
 
     const prev = prevDDMMYYYY ? ddmmyyyyToYMD(prevDDMMYYYY) : null;
@@ -198,8 +184,6 @@ router.get("/details/:date", async (req, res) => {
       next,
       imageUrl,
     };
-
-    debug(blogEntry);
 
     res.json(blogEntry);
   } catch (error) {
