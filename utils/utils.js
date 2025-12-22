@@ -189,7 +189,7 @@ const getPostsArray = async (dateString) => {
   }
 };
 
-function updateTagsIndex() { // allow this to run in background
+async function updateTagsIndex() { // allow this to run in background
   const index = {};
 
   const years = await fs.readdir(postsDir);
