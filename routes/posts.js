@@ -152,8 +152,9 @@ console.time("Creating new post");
 router.get("/details/:date", async (req, res) => {
   const { date } = req.params;
   debug("Details request for date:", date);
+  
 
-  const { year, month, day } = ymdToParts(date);
+const [day, month, year] = [date.slice(0, 2), date.slice(2, 4), date.slice(4, 8)];
   const filePath = path.join(postsDir, year, month, `${day}.md`);
   debug("File path:", filePath);
 
