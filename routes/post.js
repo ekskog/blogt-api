@@ -92,13 +92,10 @@ router.get("/details/:date", async (req, res) => {
     const parsed = await parseBlogEntry(raw);
     console.timeEnd("Parsing post file for details");
 
-    const [prevDDMMYYYY, nextDDMMYYYY] = await Promise.all([
+    const [prev, next] = await Promise.all([
       getPrev(date),
       getNext(date),
     ]);
-
-    debug("Previous date:", prevDDMMYYYY);
-    debug("Next date:", nextDDMMYYYY);  
 
     const imageUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`;
     const blogEntry = {
@@ -107,8 +104,8 @@ router.get("/details/:date", async (req, res) => {
       tags: parsed.tags,
       content: parsed.content,
       htmlContent: null,
-      prevDDMMYYYY,
-      nextDDMMYYYY,
+      prev,
+      next,
       imageUrl,
     };
 
@@ -164,13 +161,12 @@ router.put("/:date", async (req, res) => {
 
     // Reuse the details logic to return the updated post
     const ddmmyyyy = `${day}${month}${year}`;
-    const [prevDDMMYYYY, nextDDMMYYYY] = await Promise.all([
+    const [prev, next] = await Promise.all([
       getPrev(ddmmyyyy),
       getNext(ddmmyyyy),
     ]);
 
-    const prev = prevDDMMYYYY ? ddmmyyyyToYMD(prevDDMMYYYY) : null;
-    const next = nextDDMMYYYY ? ddmmyyyyToYMD(nextDDMMYYYY) : null;
+
     const imageUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`;
 
     res.json({
