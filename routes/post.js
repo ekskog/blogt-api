@@ -19,102 +19,19 @@ const {
   parseBlogEntry,
 } = require("../utils/utils");
 
-// Helpers for date conversion
-function isYMD(date) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(date);
-}
-
-function isDDMMYYYY(date) {
-  return /^\d{8}$/.test(date);
-}
-
-function ymdToParts(date) {
-  const [year, month, day] = date.split("-");
-  return { year, month, day };
-}
-
-function ddmmyyyyToParts(date) {
-  const day = date.slice(0, 2);
-  const month = date.slice(2, 4);
-  const year = date.slice(4, 8);
-  return { year, month, day };
-}
-
-function ymdToDDMMYYYY(date) {
-  const { year, month, day } = ymdToParts(date);
-  return `${day}${month}${year}`;
-}
-
-function ddmmyyyyToYMD(date) {
-  const { year, month, day } = ddmmyyyyToParts(date);
-  return `${year}-${month}-${day}`;
-}
-
-router.get("/archives", async (req, res) => {
-  let filePath = path.join(postsDir, `archive.json`);
-  debug("File path:", filePath);
-
-  try {
-    const data = await fs.readFile(filePath, "utf-8");
-    const jsonData = JSON.parse(data);
-    res.json(jsonData);
-  } catch (err) {
-    console.error("Error reading archives file:", err);
-    res.status(500).send("Failed to fetch archives.");
+// GET LATEST 10 POSTS
+router.get("/", async (req, res) => {
+  const { latestPostPath, latestPostDate } = await findLatestPost();
+  if (!latestPostPath || !latestPostDate) {
+    return res.status(404).json({ error: "No posts found" });
   }
+  var dateString = await formatDate(latestPostDate);
+  debug(`[MAIN] Latest post date: ${latestPostDate}`);
+  let postsArray = await getPostsArray(dateString);
+  res.send(postsArray);
 });
 
-router.get("/buildarchives", async (req, res) => {
-  try {
-    // Recursively build the archive structure
-    const buildArchives = async (dir) => {
-      const items = await fs.readdir(dir, { withFileTypes: true });
-      const structure = {};
-
-      for (const item of items) {
-        const itemPath = path.join(dir, item.name);
-
-        if (item.isDirectory()) {
-          // Recursively process subdirectories (years, months)
-          structure[item.name] = await buildArchives(itemPath);
-        } else if (item.isFile() && item.name.endsWith(".md")) {
-          // Extract day from filename
-          const day = path.basename(item.name, ".md");
-          if (!structure.files) structure.files = [];
-          structure.files.push(day);
-        }
-      }
-
-      // If there are only files, return just an array of days
-      return structure.files ? structure.files : structure;
-    };
-
-    // Build the archive starting from the posts directory
-    const archives = await buildArchives(postsDir);
-
-    // Convert the result to the desired structure
-    const formatArchives = (rawStructure) => {
-      const formatted = {};
-      for (const year in rawStructure) {
-        if (typeof rawStructure[year] === "object") {
-          formatted[year] = {};
-          for (const month in rawStructure[year]) {
-            if (Array.isArray(rawStructure[year][month])) {
-              formatted[year][month] = rawStructure[year][month];
-            }
-          }
-        }
-      }
-      return formatted;
-    };
-
-    const formattedArchives = formatArchives(archives);
-    res.json(formattedArchives);
-  } catch (err) {
-    console.error("Error building archives:", err);
-    res.status(500).send("Failed to fetch archives.");
-  }
-});
+// Archive endpoints were moved to routes/archive.js
 
 router.post("/:date", async (req, res) => {
   try {
@@ -276,16 +193,7 @@ router.put("/:date", async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
-  const { latestPostPath, latestPostDate } = await findLatestPost();
-  if (!latestPostPath || !latestPostDate) {
-    return res.status(404).json({ error: "No posts found" });
-  }
-  var dateString = await formatDate(latestPostDate);
-  debug(`[MAIN] Latest post date: ${latestPostDate}`);
-  let postsArray = await getPostsArray(dateString);
-  res.send(postsArray);
-});
+
 
 router.get("/from/:startDate", async (req, res) => {
   const { startDate } = req.params;
