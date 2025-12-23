@@ -120,6 +120,9 @@ router.post("/:date", async (req, res) => {
   try {
     const { title, tags = [], content = "" } = req.body;
     const { date } = req.params;
+    
+    debug("Editing post for: ", date)
+
     const [day, month, year] = [
       date.slice(0, 2),
       date.slice(2, 4),
@@ -127,6 +130,7 @@ router.post("/:date", async (req, res) => {
     ];
 
     const dirPath = path.join(postsDir, year, month);
+    debug("Save at: ", dirPath)
     console.time("Creating new post");
     await fs.mkdir(dirPath, { recursive: true });
 

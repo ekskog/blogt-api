@@ -13,7 +13,7 @@ const corsProperties =
 }
 
 var indexRouter = require('./routes/index');
-var postsRouter = require('./routes/posts');
+var postsRouter = require('./routes/post');
 var tagsRouter = require('./routes/tags');
 var rssRouter = require('./routes/rss');
 var mediaRouter = require('./routes/media');
@@ -36,7 +36,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/posts', postsRouter);
+app.use('/post', postsRouter);
 app.use('/tags', tagsRouter);
 app.use('/rss.xml', rssRouter);
 app.use('/media', mediaRouter);
