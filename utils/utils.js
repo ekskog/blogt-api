@@ -76,6 +76,7 @@ async function extractFromDate(dateString) {
 
 async function getNext(dateString) {
   let date = await extractFromDate(dateString);
+  debug("Getting next date from:", date);
 
   let iterations = 0;
   while (iterations < 365) {
@@ -89,6 +90,7 @@ async function getNext(dateString) {
     try {
       await fs.access(filePath);
       return `${nextDay}${nextMonth}${nextYear}`;
+      debug("Found next date:", `${nextDay}${nextMonth}${nextYear}`);
     } catch (error) {
       // Continue to next date
     }
@@ -97,6 +99,7 @@ async function getNext(dateString) {
 
 async function getPrev(dateString) {
   let date = await extractFromDate(dateString);
+  debug("Getting previous date from:", date);
   let iterations = 0;
   while (iterations < 365) {
     iterations++;
@@ -115,6 +118,7 @@ async function getPrev(dateString) {
     try {
       await fs.access(filePath);
       return `${previousDay}${previousMonth}${previousYear}`;
+      debug("Found previous date:", `${previousDay}${previousMonth}${previousYear}`);
     } catch (error) {
       // Log the missing entry
       debug(

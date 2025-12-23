@@ -31,8 +31,7 @@ router.get("/", async (req, res) => {
   res.send(postsArray);
 });
 
-// Archive endpoints were moved to routes/archive.js
-
+// Create a new post using
 router.post("/:date", async (req, res) => {
   try {
     const { title, tags = [], content = "" } = req.body;
@@ -98,9 +97,12 @@ router.get("/details/:date", async (req, res) => {
       getNext(date),
     ]);
 
+    debug("Previous date:", prevDDMMYYYY);
+    debug("Next date:", nextDDMMYYYY);  
+/*
     const prev = prevDDMMYYYY ? ddmmyyyyToYMD(prevDDMMYYYY) : null;
     const next = nextDDMMYYYY ? ddmmyyyyToYMD(nextDDMMYYYY) : null;
-
+*/
     const imageUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`;
     const blogEntry = {
       date: parsed.date,
