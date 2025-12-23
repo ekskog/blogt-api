@@ -116,15 +116,18 @@ router.get("/buildarchives", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/:date", async (req, res) => {
   try {
-    const { date, title, tags = [], content = "" } = req.body;
-console.time("Creating new post");
-    
-
-    let { year, month, day } = ddmmyyyyToParts(date);
+    const { title, tags = [], content = "" } = req.body;
+    const { date } = req.params;
+    const [day, month, year] = [
+      date.slice(0, 2),
+      date.slice(2, 4),
+      date.slice(4, 8),
+    ];
 
     const dirPath = path.join(postsDir, year, month);
+    console.time("Creating new post");
     await fs.mkdir(dirPath, { recursive: true });
 
     const dateLine = `Date: ${date}`;
@@ -152,19 +155,22 @@ console.time("Creating new post");
 router.get("/details/:date", async (req, res) => {
   const { date } = req.params;
   debug("Details request for date:", date);
-  
 
-const [day, month, year] = [date.slice(0, 2), date.slice(2, 4), date.slice(4, 8)];
+  const [day, month, year] = [
+    date.slice(0, 2),
+    date.slice(2, 4),
+    date.slice(4, 8),
+  ];
   const filePath = path.join(postsDir, year, month, `${day}.md`);
   debug("File path:", filePath);
 
   try {
     console.time("Reading post file for details");
     const raw = await fs.readFile(filePath, "utf-8");
-        console.timeEnd("Reading post file for details");
+    console.timeEnd("Reading post file for details");
     console.time("Parsing post file for details");
     const parsed = await parseBlogEntry(raw);
-        console.timeEnd("Parsing post file for details");
+    console.timeEnd("Parsing post file for details");
 
     const [prevDDMMYYYY, nextDDMMYYYY] = await Promise.all([
       getPrev(date),
