@@ -99,10 +99,7 @@ router.get("/details/:date", async (req, res) => {
 
     debug("Previous date:", prevDDMMYYYY);
     debug("Next date:", nextDDMMYYYY);  
-/*
-    const prev = prevDDMMYYYY ? ddmmyyyyToYMD(prevDDMMYYYY) : null;
-    const next = nextDDMMYYYY ? ddmmyyyyToYMD(nextDDMMYYYY) : null;
-*/
+
     const imageUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`;
     const blogEntry = {
       date: parsed.date,
@@ -110,8 +107,8 @@ router.get("/details/:date", async (req, res) => {
       tags: parsed.tags,
       content: parsed.content,
       htmlContent: null,
-      prev,
-      next,
+      prevDDMMYYYY,
+      nextDDMMYYYY,
       imageUrl,
     };
 
