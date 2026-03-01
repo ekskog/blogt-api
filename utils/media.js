@@ -4,7 +4,7 @@ require("dotenv").config();
 const debug = require("debug")("blogt-api:media-utils");
 
 const minioParams = {
-  endPoint: process.env.MINIO_ENDPOINT || "objects.ekskog.xyz",
+  endPoint: process.env.MINIO_ENDPOINT || "objects.ekskog.net",
   port: Number(process.env.MINIO_PORT) || 443,
   useSSL: process.env.MINIO_USE_SSL
     ? process.env.MINIO_USE_SSL === "true"
