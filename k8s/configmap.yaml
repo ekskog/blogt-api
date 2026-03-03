@@ -1,0 +1,28 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: blogt
+  name: blogt-api-config
+  labels:
+    app: blogt-api
+data:
+  PORT: "3000"
+  NODE_ENV: "production"
+  MINIO_ENDPOINT: "objects.ekskog.net"
+  MINIO_PORT: "443"
+  MINIO_USE_SSL: "true"
+  MINIO_BUCKET: "blotpix"
+  MINIO_PUBLIC_BASE: "https://objects.ekskog.net/blotpix"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: blogt
+  name: blogt-api-secrets
+  labels:
+    app: blogt-api
+type: Opaque
+stringData:
+  MINIO_ACCESS_KEY: "lucarv"
+  MINIO_SECRET_KEY: "lucaPWD4MinI0-MJR"

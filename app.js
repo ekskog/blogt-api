@@ -22,6 +22,18 @@ var archiveRouter = require('./routes/archive');
 var app = express();
 app.use(cors(corsProperties));
 
+console.log('Environment config:', {
+  PORT:              process.env.PORT,
+  NODE_ENV:          process.env.NODE_ENV,
+  MINIO_ENDPOINT:    process.env.MINIO_ENDPOINT,
+  MINIO_PORT:        process.env.MINIO_PORT,
+  MINIO_USE_SSL:     process.env.MINIO_USE_SSL,
+  MINIO_BUCKET:      process.env.MINIO_BUCKET,
+  MINIO_PUBLIC_BASE: process.env.MINIO_PUBLIC_BASE,
+  MINIO_ACCESS_KEY:  process.env.MINIO_ACCESS_KEY  ? '***' : undefined,
+  MINIO_SECRET_KEY:  process.env.MINIO_SECRET_KEY  ? '***' : undefined,
+});
+
 // View engine setup (use Pug for simple templated pages)
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
